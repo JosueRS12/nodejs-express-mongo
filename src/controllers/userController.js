@@ -6,6 +6,7 @@ const userController = {
     var user = new User();
      
     user.first_name = data.first_name;
+    user._id = data.id;
     user.second_name = data.second_name;
     user.country = data.country;
     
