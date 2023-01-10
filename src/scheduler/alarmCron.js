@@ -5,13 +5,26 @@ import fetch from 'node-fetch';
 export class AlarmCron {
 
   #alarm;
-  #id_cron;
+  id_cron;
   #delay;
 
   constructor(alarm){
     this.#alarm = alarm;  
-    this.#id_cron = alarm.id;
-    this.#delay = 7000;
+    this.id_cron = null;
+    switch(this.#alarm.breed){
+      case 'little':
+        this.delay = 5000;
+        break;
+      case 'mid':
+        this.delay = 7000;
+        break;
+      case 'big':
+        this.delay = 10000;
+        break;
+      default:
+        this.delay = 4000;
+        break;
+    }
   }
 
   scheduleAlarm(){
@@ -20,6 +33,7 @@ export class AlarmCron {
     let repeat = this.#alarm.repeat;
     let task = cron.schedule(`${minute} ${hour} * * *`, () =>  {
       console.log(`triggered alarm at: ${hour}:${minute}`);
+      ////////////////////////////////
       this.#triggerAlarm();
       ////
       //switch case
@@ -41,12 +55,14 @@ export class AlarmCron {
 
     });
     this.#alarm.status == true ? task.start() : task.stop() 
+    this.#alarm.id_cron = task.options.name;
+    this.#alarm.save();
   } 
 
   async #triggerAlarm(){
     try{
 
-      let resOpen = await fetch('http://192.168.12.192:80/nodemcu-api/open',{
+      let resOpen = await fetch('http://192.168.133.192:80/nodemcu-api/open',{
         headers: {
           "Content-type": "text/json"
         },
@@ -61,7 +77,7 @@ export class AlarmCron {
     setTimeout(async ()=>{
 
       try{ 
-        let resClose = await fetch('http://192.168.12.192:80/nodemcu-api/close',{
+        let resClose = await fetch('http://192.168.133.192:80/nodemcu-api/close',{
           headers: {
             "Content-type": "text/json"
           },
@@ -72,7 +88,7 @@ export class AlarmCron {
       } catch(err){
         console.error("Error al intentar cerrar la compuerta: ", err);
       }
-    }, this.#delay);
+    }, this.delay);
 
   }
 

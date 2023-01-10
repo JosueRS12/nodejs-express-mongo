@@ -7,7 +7,9 @@ const alarmSchema = new Schema({
   minute: Number,
   repeat: String,
   status: Boolean,
-  label: String
+  label: String,
+  id_cron: String,
+  breed: String
 });
 
 const Alarm = mongoose.model('Alarm', alarmSchema);

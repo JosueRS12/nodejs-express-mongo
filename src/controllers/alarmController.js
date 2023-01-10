@@ -1,5 +1,6 @@
 import {Alarm} from '../models/alarm.js';
 import {AlarmCron} from '../scheduler/alarmCron.js';
+import cron from  'node-cron'; 
 
 const alarmController = {
   create: function(req, res){
@@ -48,6 +49,11 @@ const alarmController = {
             }
           });
       }
+      let idCron = alarm.id_cron;
+      let cronTask = cron.getTasks();
+      cronTask = cronTask.get(idCron); 
+      status == true ? cronTask.start() : cronTask.stop() 
+
       alarm.save((err, userSaved)=>{
         if(err){
           return res.status(500).send({
@@ -129,7 +135,36 @@ const alarmController = {
       })
 
     });
-
+  },
+  setBreed: function(req, res){
+    var breedDog = req.body.alarm.breed;
+    var userId = req.params.user_id;
+    var alarm = Alarm.find({user_id: userId}, (err, alarm)=>{
+      if(err){
+        return res.status(500).send({
+            data: {
+              error: "No se ha encontrado la alarma"
+            }
+          });
+      }
+    });
+    alarm.updateOne({breed: breedDog}, (err, alarm)=>{
+      //console.log(err);
+      //if(err){
+        //return res.status(500).send({
+          //data: {
+            //error: "No ha sido posible guardar la raza de tu mascota"
+          //}
+        //});
+      //}
+      
+      return res.status(200).send({
+        data: {
+          message: "Raza guardada", 
+          body: alarm
+        }
+      });
+    });
   }
 } 
 
